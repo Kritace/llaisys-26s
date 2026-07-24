@@ -166,14 +166,14 @@ void Tensor::debug() const {
 // 检查张量的形状和步长，判断它在内存中是否连续。
 bool Tensor::isContiguous() const {
     // 检查张量是否是连续的。一个张量是连续的，如果它的步长与其形状一致，即每个维度的步长等于该维度之后所有维度的元素数量的乘积。
-    size_t expected_stride = 1;
-    for (size_t i = this->ndim(); i > 0; i--) {
-        // 检查当前维度的步长是否与预期的步长一致。如果不一致，则张量不是连续的，返回false。
-        if (this->strides()[i - 1] != expected_stride) {
-            return false;
+    ptrdiff_t expected_stride = 1;
+    for (size_t i = this->ndim(); i-- > 0;) {
+        if (this->_meta.shape[i] != 1) {
+            if (this->_meta.strides[i] != expected_stride) {
+                return false;
+            }
+            expected_stride *= static_cast<ptrdiff_t>(this->_meta.shape[i]);
         }
-        // 更新预期的步长为当前维度的大小乘以之前的预期步长，以便在下一次迭代中进行比较。
-        expected_stride *= this->shape()[i - 1];
     }
     return true;
 }
