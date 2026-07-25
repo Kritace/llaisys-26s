@@ -24,9 +24,9 @@ void linear_(const T *in, const T *weight, T *out, size_t in_rows, size_t in_col
 
 namespace llaisys::ops::cpu {
 void linear(tensor_t out, tensor_t in, tensor_t weight, tensor_t bias, llaisysDataType_t type, size_t /*numel*/) {
-    const size_t in_rows = in->shape()[0]; // Batch size
-    const size_t in_cols = in->shape()[1]; // Input features
-    const size_t out_cols = weight->shape()[0]; // Output features
+    const size_t in_rows = in->shape()[0];
+    const size_t in_cols = in->shape()[1];
+    const size_t out_cols = weight->shape()[0];
 
     switch (type) {
     case LLAISYS_DTYPE_F32:
