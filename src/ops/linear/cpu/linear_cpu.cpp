@@ -1,23 +1,17 @@
 #include "linear_cpu.hpp"
-#include "../../add/cpu/add_cpu.hpp"
+#include "../../../utils/matmul.hpp"
 
-#include "../../../utils.hpp"
-#include <iostream>
-
-// 线性变换操作：计算 out = in * weight^T + bias, bias是可选的。
+// 线性变换: out[M,N] = in[M,K] × weight[N,K]ᵀ + bias (可选)
 template <typename T>
-void linear_(const T *in, const T *weight, T *out, size_t in_rows, size_t in_cols, size_t out_cols, const T *bias = nullptr) {
-
-    for (size_t i = 0; i < in_rows; ++i) {
-        for (size_t j = 0; j < out_cols; ++j) {
-            float acc = 0.0f;
-            for (size_t k = 0; k < in_cols; ++k) {
-                float a = llaisys::utils::cast<float>(in[i * in_cols + k]);
-                float b = llaisys::utils::cast<float>(weight[j * in_cols + k]);
-                acc += a * b;
+void linear_(const T *in, const T *weight, T *out, size_t M, size_t K, size_t N, const T *bias = nullptr) {
+    llaisys::ops::cpu::matmul(out, in, weight, M, N, K, K, K, N);
+    if (bias) {
+        for (size_t i = 0; i < M; ++i) {
+            for (size_t j = 0; j < N; ++j) {
+                out[i * N + j] = llaisys::utils::cast<T>(
+                    llaisys::utils::cast<float>(out[i * N + j])
+                    + llaisys::utils::cast<float>(bias[j]));
             }
-            if (bias) acc += llaisys::utils::cast<float>(bias[j]);
-            out[i * out_cols + j] = llaisys::utils::cast<T>(acc);
         }
     }
 }
