@@ -8,7 +8,7 @@ template <typename T>
 void swiglu_cpu(T *out, const T *gate, const T *up, size_t numel) {
     for (size_t i = 0; i < numel; ++i) {
         float g = llaisys::utils::cast<float>(gate[i]);
-        float s = g / (1.0f + std::exp(-g));
+        float s = g / (1.0f + std::exp(-g)); // sigmoid
         out[i] = llaisys::utils::cast<T>(llaisys::utils::cast<float>(up[i]) * s);
     }
 }

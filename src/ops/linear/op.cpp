@@ -7,10 +7,16 @@
 
 namespace llaisys::ops {
 void linear(tensor_t out, tensor_t in, tensor_t weight, tensor_t bias) {
-    CHECK_SAME_DEVICE(out, in, weight, bias);
-    CHECK_SAME_DTYPE(out->dtype(), in->dtype(), weight->dtype(), bias->dtype());
-    ASSERT(out->isContiguous() && in->isContiguous() && weight->isContiguous() && bias->isContiguous(),
+    CHECK_SAME_DEVICE(out, in, weight);
+    CHECK_SAME_DTYPE(out->dtype(), in->dtype(), weight->dtype());
+    ASSERT(out->isContiguous() && in->isContiguous() && weight->isContiguous(),
            "Linear: all tensors must be contiguous.");
+    // bias 可为空（无 bias 的线性层）
+    if (bias) {
+        CHECK_SAME_DEVICE(bias, out);
+        CHECK_SAME_DTYPE(bias->dtype(), out->dtype());
+        ASSERT(bias->isContiguous(), "Linear: bias must be contiguous.");
+    }
 
     // always support cpu calculation
     if (out->deviceType() == LLAISYS_DEVICE_CPU) {
