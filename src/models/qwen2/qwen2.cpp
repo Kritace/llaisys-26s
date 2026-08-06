@@ -7,6 +7,7 @@
 #include "../../ops/add/op.hpp"
 #include "../../ops/embedding/op.hpp"
 #include "../../ops/argmax/op.hpp"
+#include "../../core/llaisys_core.hpp"   // core::context()：设备感知的 memcpy
 
 #include <cmath>
 
@@ -68,12 +69,17 @@ tensor_t Qwen2Model::forward_layer(
         }
     }
 
-    // 5b. 将当前步的 K_rope 和 V 写入缓存
+    // 5b. 将当前步的 K_rope 和 V 写入缓存（device→device 拷贝）
     //     slice(0, step, step+1) → [1, nkvh, dh]，指向缓存中 step 位置
+    //     注意：load() 是 host→device（H2D），不能用于 device→device，
+    //     否则会把显存指针当主机源读 → GPU 下段错误/写坏。
     tensor_t k_dst = cache.k_cache[layer_idx]->slice(0, cache.step, cache.step + 1);
     tensor_t v_dst = cache.v_cache[layer_idx]->slice(0, cache.step, cache.step + 1);
-    k_dst->load(k_rope->data());
-    v_dst->load(v_3d->data());
+    const size_t kv_bytes = k_dst->numel() * k_dst->elementSize();
+    llaisys::core::context().runtime().api()->memcpy_sync(
+        k_dst->data(), k_rope->data(), kv_bytes, LLAISYS_MEMCPY_D2D);
+    llaisys::core::context().runtime().api()->memcpy_sync(
+        v_dst->data(), v_3d->data(), kv_bytes, LLAISYS_MEMCPY_D2D);
 
     // 5c. 取出完整缓存 [0, step+1) 给 attention 用
     tensor_t K_all = cache.k_cache[layer_idx]->slice(0, 0, cache.step + 1);

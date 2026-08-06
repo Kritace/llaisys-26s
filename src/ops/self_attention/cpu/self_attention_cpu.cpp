@@ -1,5 +1,5 @@
 #include "self_attention_cpu.hpp"
-#include "../../../utils/matmul.hpp"
+#include "../../../utils/matmul_cpu.hpp"
 
 #include <cmath>
 #include <vector>

@@ -55,8 +55,7 @@ class Qwen2:
         # 保存 device，加载权重时使用
         self._device = int(device)
 
-        # 5. 加载权重 
-        # 重要：保持所有 Tensor 对象的引用，防止被垃圾回收销毁底层 C 张量！
+        # 5. 加载权重，保持所有 Tensor 对象的引用，防止被垃圾回收销毁底层 C 张量
         self._weight_tensors = []
 
         # safetensors 名称 → C 权重结构字段 的映射

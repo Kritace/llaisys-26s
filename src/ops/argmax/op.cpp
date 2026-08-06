@@ -4,6 +4,12 @@
 #include "../../utils.hpp"
 
 #include "cpu/argmax_cpu.hpp"
+#ifdef ENABLE_NVIDIA_API
+#include "nvidia/argmax_nvidia.hpp"
+#endif
+#ifdef ENABLE_MUSA_API
+#include "musa/argmax_musa.hpp"
+#endif
 
 namespace llaisys::ops {
 void argmax(tensor_t max_idx, tensor_t max_val, tensor_t vals) {
@@ -28,8 +34,11 @@ void argmax(tensor_t max_idx, tensor_t max_val, tensor_t vals) {
 
 #ifdef ENABLE_NVIDIA_API
     case LLAISYS_DEVICE_NVIDIA:
-        TO_BE_IMPLEMENTED();
-        return;
+        return nvidia::argmax(max_idx, max_val, vals, vals->dtype(), vals->numel());
+#endif
+#ifdef ENABLE_MUSA_API
+    case LLAISYS_DEVICE_MUSA:
+        return musa::argmax(max_idx, max_val, vals, vals->dtype(), vals->numel());
 #endif
     default:
         EXCEPTION_UNSUPPORTED_DEVICE;

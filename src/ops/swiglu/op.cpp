@@ -4,6 +4,12 @@
 #include "../../utils.hpp"
 
 #include "cpu/swiglu_cpu.hpp"
+#ifdef ENABLE_NVIDIA_API
+#include "nvidia/swiglu_nvidia.hpp"
+#endif
+#ifdef ENABLE_MUSA_API
+#include "musa/swiglu_musa.hpp"
+#endif
 
 namespace llaisys::ops {
 void swiglu(tensor_t out, tensor_t gate, tensor_t up) {
@@ -24,8 +30,11 @@ void swiglu(tensor_t out, tensor_t gate, tensor_t up) {
 
 #ifdef ENABLE_NVIDIA_API
     case LLAISYS_DEVICE_NVIDIA:
-        TO_BE_IMPLEMENTED();
-        return;
+        return nvidia::swiglu(out, gate, up, gate->dtype(), gate->numel());
+#endif
+#ifdef ENABLE_MUSA_API
+    case LLAISYS_DEVICE_MUSA:
+        return musa::swiglu(out, gate, up, gate->dtype(), gate->numel());
 #endif
     default:
         EXCEPTION_UNSUPPORTED_DEVICE;

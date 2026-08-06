@@ -1,5 +1,5 @@
 #include "linear_cpu.hpp"
-#include "../../../utils/matmul.hpp"
+#include "../../../utils/matmul_cpu.hpp"
 
 // 线性变换: out[M,N] = in[M,K] × weight[N,K]ᵀ + bias (可选)
 template <typename T>

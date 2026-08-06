@@ -18,6 +18,18 @@ if has_config("nv-gpu") then
     includes("xmake/nvidia.lua")
 end
 
+-- MUSA (Moore Threads) --
+option("musa-gpu")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Whether to compile implementations for Moore Threads MUSA GPU")
+option_end()
+
+if has_config("musa-gpu") then
+    add_defines("ENABLE_MUSA_API")
+    includes("xmake/musa.lua")
+end
+
 target("llaisys-utils")
     set_kind("static")
 

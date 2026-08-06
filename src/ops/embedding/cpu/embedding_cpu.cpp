@@ -12,7 +12,7 @@ void embedding_(T *out, const std::int64_t *index, const T *weight, size_t num_r
     }
 }
 
-// // 从weight（2-D）中复制index（1-D）中的行到output（2-D）。index必须是Int64类型（PyTorch中int的默认数据类型）。
+// 从weight（2-D）中复制index（1-D）中的行到output（2-D）。index必须是Int64类型（PyTorch中int的默认数据类型）。
 namespace llaisys::ops::cpu {
 void embedding(tensor_t out, tensor_t index, tensor_t weight, llaisysDataType_t type, size_t num_rows, size_t num_cols) {
     switch (type) {

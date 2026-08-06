@@ -2,6 +2,7 @@
 
 #include "llaisys_tensor.hpp"
 #include "../models/qwen2/qwen2.hpp"
+#include "../core/llaisys_core.hpp"   // core::context()：设备感知的 memcpy
 
 #include <vector>
 #include <cstring>
@@ -183,10 +184,11 @@ int64_t llaisysQwen2ModelInfer(
         // forward：输出下一个 token 的预测
         auto next = model->cpp_model->forward(input, model->cache);
 
-        // 读取结果
-        std::memcpy(&result, next->data(), sizeof(int64_t));
+        // 读取结果，memcpy_sync 在 CPU 下就是 std::memcpy（忽略 kind），在 GPU 下是 cudaMemcpy(D2H)。
+        // 若直接 std::memcpy, GPU 下会把显存指针当主机源读，导致段错误
+        llaisys::core::context().runtime().api()->memcpy_sync(
+            &result, next->data(), sizeof(int64_t), LLAISYS_MEMCPY_D2H);
 
-        // 步数 +1
         model->cache.step++;
     }
 

@@ -4,6 +4,12 @@
 #include "../../utils.hpp"
 
 #include "cpu/embedding_cpu.hpp"
+#ifdef ENABLE_NVIDIA_API
+#include "nvidia/embedding_nvidia.hpp"
+#endif
+#ifdef ENABLE_MUSA_API
+#include "musa/embedding_musa.hpp"
+#endif
 
 namespace llaisys::ops {
 // 从weight（2-D）中复制index（1-D）中的行到output（2-D）。index必须是Int64类型（PyTorch中int的默认数据类型）。
@@ -29,8 +35,11 @@ void embedding(tensor_t out, tensor_t index, tensor_t weight) {
     
 #ifdef ENABLE_NVIDIA_API
     case LLAISYS_DEVICE_NVIDIA:
-        TO_BE_IMPLEMENTED();
-        return;
+        return nvidia::embedding(out, index, weight, weight->dtype(), index->shape()[0], weight->shape()[1]);
+#endif
+#ifdef ENABLE_MUSA_API
+    case LLAISYS_DEVICE_MUSA:
+        return musa::embedding(out, index, weight, weight->dtype(), index->shape()[0], weight->shape()[1]);
 #endif
     default:
         EXCEPTION_UNSUPPORTED_DEVICE;
