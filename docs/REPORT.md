@@ -12,6 +12,7 @@ CPU 编译：
 ```bash
 xmake
 xmake install
+pip install ./python/
 python test/ops/add.py --device cpu
 python test/test_infer.py --model [dir_path/to/model] --test --device cpu
 ```
@@ -22,6 +23,7 @@ NVIDIA：
 xmake f --nv-gpu=y -cv
 xmake
 xmake install
+pip install ./python/
 python test/ops/add.py --device nvidia
 python test/test_infer.py --model [dir_path/to/model] --test --device nvidia
 ```
@@ -35,6 +37,7 @@ bash scripts/build_musa.sh
 xmake f --musa-gpu=y -cv
 xmake
 xmake install
+pip install ./python/
 python test/ops/add.py --device musa
 python test/test_infer.py --model [dir_path/to/model] --test --device musa
 ```
