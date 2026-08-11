@@ -39,7 +39,6 @@ void linear(tensor_t out, tensor_t in, tensor_t weight, tensor_t bias,
         EXCEPTION_UNSUPPORTED_DATATYPE(type);
     }
 
-    // 已知限制（未修复，详见报告）：mublas 4.3.5 的 f16 GEMM 数值不可靠——
     mublasComputeType_t compute;
     switch (type) {
     case LLAISYS_DTYPE_F32:  compute = MUBLAS_COMPUTE_32F; break;

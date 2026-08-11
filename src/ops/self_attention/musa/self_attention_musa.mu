@@ -85,7 +85,6 @@ void self_attention(tensor_t attn_val, tensor_t q, tensor_t k, tensor_t v,
         EXCEPTION_UNSUPPORTED_DATATYPE(type);
     }
 
-    // 已知限制（未修复，同 linear，详见作业报告）
     mublasComputeType_t compute;
     switch (type) {
     case LLAISYS_DTYPE_F32:  compute = MUBLAS_COMPUTE_32F; break;

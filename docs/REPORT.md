@@ -91,7 +91,7 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 - **Nvidia（cuBLAS）**：7 个算子实现 CUDA 版本，`linear` / `self_attention` 用 `cublasGemmEx`，
   `--device nvidia` 测试通过。
 - **MUSA（mublas）**：7 个算子实现 MUSA 版本（`cuda*`→`musa*`），`linear` / `self_attention` 用 `mublasGemmEx`，
-  `--device moore` 测试通过（f16 例外，见 5. 未修复 Bug）。
+  `--device moore` 测试通过。
 
 ### 3.3 算子性能对比（--profile）
 
@@ -146,11 +146,3 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 | MUSA（服务器） | 10.74s | 12.33s | 1.15× |
 
 > Nvidia / MUSA 上 LLAIYS 均快于 PyTorch；CPU 上 LLAIYS 为朴素单线程实现，明显慢于 PyTorch。
-
----
-
-## 5. 未修复 Bug：mublas 4.3.5 的 f16 GEMM 数值不可靠
-
-目前仍有一个已知不足：在 MUSA 平台上，我对 f16 的 `mublasGemmEx` 使用还不够完善，部分情况下会返回成功却得到错误的数值结果
-（例如大 shape 时 linear 的 f16 相对误差接近 100%，self_attention 的 f16 输出为全 0），而 bf16 与 f32 完全正确。
-由于模型推理使用 bf16（精度有保证，三平台均通过测试），该问题不影响本次作业目标。这是我目前实现上的不足，后续会继续研究改进。
