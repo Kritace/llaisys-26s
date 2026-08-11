@@ -10,6 +10,7 @@
 CPU 编译：
 
 ```bash
+export XMAKE_ROOT=y
 xmake
 xmake install
 pip install ./python/
@@ -20,29 +21,33 @@ python test/test_infer.py --model [dir_path/to/model] --test --device cpu
 NVIDIA：
 
 ```bash
+export XMAKE_ROOT=y
 xmake f --nv-gpu=y -cv
 xmake
-xmake install
+xmake installexport LD_LIBRARY_PATH=/usr/local/musa/lib:$LD_LIBRARY_PATH
+export TORCH_DEVICE_BACKEND_AUTOLOAD=0   # 下载只需 torch，不需要 torch_musa
+
+python -c "from modelscope import snapshot_download; snapshot_download('deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B', local_dir='/data/DeepSeek-R1-Distill-Qwen-1.5B')"
 pip install ./python/
 python test/ops/add.py --device nvidia
 python test/test_infer.py --model [dir_path/to/model] --test --device nvidia
 ```
 
-摩尔线程 MUSA：
+MOORE：
 
 ```bash
-export PATH=/usr/local/musa/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/musa/lib:$LD_LIBRARY_PATH
-bash scripts/build_musa.sh
-xmake f --musa-gpu=y -cv
+export XMAKE_ROOT=y
+xmake f --moore-gpu=y -cv
 xmake
 xmake install
 pip install ./python/
-python test/ops/add.py --device musa
-python test/test_infer.py --model [dir_path/to/model] --test --device musa
+python test/ops/add.py --device moore
+python test/test_infer.py --model [dir_path/to/model] --test --device moore
 ```
 
-> 其余算子（argmax / embedding / linear / rms_norm / rope / self_attention / swiglu）同理，`test/ops/<op>.py` 支持 `--device {cpu,nvidia,musa}`。
+> 若 `import torch` 报 `module 'torch' has no attribute 'musa'`，先执行 `export TORCH_DEVICE_BACKEND_AUTOLOAD=1`（torch_musa 设备后端自动加载开关，官方算力镜像通常已默认开启）。
+
+> 其余算子（argmax / embedding / linear / rms_norm / rope / self_attention / swiglu）同理，`test/ops/<op>.py` 支持 `--device {cpu,nvidia,moore}`。
 
 ---
 
@@ -68,7 +73,7 @@ include/llaisys.h                           # 新增 DeviceType.MUSA
 src/device/runtime_api.hpp/.cpp             # 分派新增 MUSA 分支
 src/ops/<op>/op.cpp                         # 分派新增 MUSA case
 src/models/qwen2/ + src/llaisys/            # GPU 推理修复（D2H / D2D 拷贝）
-xmake.lua                                   # 新增 musa-gpu 编译选项
+xmake.lua                                   # 新增 moore-gpu 编译选项
 python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 ```
 
@@ -86,7 +91,7 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 - **Nvidia（cuBLAS）**：7 个算子实现 CUDA 版本，`linear` / `self_attention` 用 `cublasGemmEx`，
   `--device nvidia` 测试通过。
 - **MUSA（mublas）**：7 个算子实现 MUSA 版本（`cuda*`→`musa*`），`linear` / `self_attention` 用 `mublasGemmEx`，
-  `--device musa` 测试通过（f16 例外，见 5. 未修复 Bug）。
+  `--device moore` 测试通过（f16 例外，见 5. 未修复 Bug）。
 
 ### 3.3 算子性能对比（--profile）
 

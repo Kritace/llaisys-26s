@@ -5,18 +5,23 @@
 -- 改动 musa 源码后需重跑：bash scripts/build_musa.sh
 -- 启用方式: xmake f --musa-gpu=y -y && xmake
 
+-- MUSA SDK 路径（默认官方路径，可用环境变量 MUSA_PATH 覆盖）
+local musa_path = os.getenv("MUSA_PATH") or "/usr/local/musa"
+
 target("llaisys")
     -- mublas（linear/self_attention 用）
     add_syslinks("mublas")
-    add_linkdirs("/usr/local/musa/lib")
+    add_linkdirs(path.join(musa_path, "lib"))
+    -- 运行时自动定位 mublas/musa 动态库（免手动 export LD_LIBRARY_PATH）
+    add_rpathdirs(path.join(musa_path, "lib"))
     -- 预编译的 musa 静态库（排在静态库之后链接，避免 --as-needed 丢弃）
     add_syslinks("llaisys-musa")
     add_linkdirs("../build/musa_objs")
 
-    -- 关键：libllaisys-musa.a 由 build_musa.sh 生成，xmake 无法追踪其变化，
-    -- 若不强制重链，改 musa 代码后 .so 仍是旧的（表现为 f16 GEMM 一直报 NOT_IMPLEMENTED）。
-    -- 构建前删除 .so，强制每次重新链接。
+    -- 构建前：删除旧 .so 强制重链 + 自动预编译 musa 源（.mu → .a），
+    -- 无需手动执行 build_musa.sh，流程与 nvidia 对称。
     before_build(function (target)
         os.rm(target:targetfile())
+        os.exec("bash scripts/build_musa.sh")
     end)
 target_end()

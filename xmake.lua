@@ -19,13 +19,13 @@ if has_config("nv-gpu") then
 end
 
 -- MUSA (Moore Threads) --
-option("musa-gpu")
+option("moore-gpu")
     set_default(false)
     set_showmenu(true)
     set_description("Whether to compile implementations for Moore Threads MUSA GPU")
 option_end()
 
-if has_config("musa-gpu") then
+if has_config("moore-gpu") then
     add_defines("ENABLE_MUSA_API")
     includes("xmake/musa.lua")
 end

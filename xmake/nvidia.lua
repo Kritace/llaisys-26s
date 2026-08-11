@@ -14,9 +14,8 @@ target("llaisys-device-nvidia")
     -- 不会触发 nvcc -dlink，开着 RDC 会让 __cudaRegisterLinkedBinary 符号悬空。
     -- 后续若加入真正的 kernel，需在同一 .cu 翻译单元内定义，或把 .cu 移入 shared target 并启用 RDC。
     set_values("cuda.rdc", false)
-    -- 目标架构：同时支持本地 RTX 30 系 (Ampere, sm_86) 和服务器 RTX 5090 (Blackwell, sm_120)
-    -- 注意：sm_120 需要 CUDA >= 12.8。若服务器是其他卡，可改为对应 sm_XX 或 "native"
-    add_cugencodes("sm_86", "sm_120")
+    -- 目标架构：A100 (sm_80) 与本地 RTX 30 系 (sm_86)，兼容 CUDA >= 11.x
+    add_cugencodes("sm_80", "sm_86")
     -- .cu 的 host 部分需要 -fPIC 才能链接进 libllaisys.so
     add_cuflags("-Xcompiler=-fPIC")
     add_files("../src/device/nvidia/*.cu")
@@ -37,7 +36,7 @@ target("llaisys-ops-nvidia")
     add_rules("cuda")
     -- 与 llaisys-device-nvidia 同理：静态库内的 .cu 关闭 RDC，避免悬空符号
     set_values("cuda.rdc", false)
-    add_cugencodes("sm_86", "sm_120")
+    add_cugencodes("sm_80", "sm_86")
     add_cuflags("-Xcompiler=-fPIC")
     add_files("../src/ops/*/nvidia/*.cu")
     on_install(function (target) end)
