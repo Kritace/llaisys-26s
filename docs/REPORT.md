@@ -24,10 +24,7 @@ NVIDIA：
 export XMAKE_ROOT=y
 xmake f --nv-gpu=y -cv
 xmake
-xmake installexport LD_LIBRARY_PATH=/usr/local/musa/lib:$LD_LIBRARY_PATH
-export TORCH_DEVICE_BACKEND_AUTOLOAD=0   # 下载只需 torch，不需要 torch_musa
-
-python -c "from modelscope import snapshot_download; snapshot_download('deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B', local_dir='/data/DeepSeek-R1-Distill-Qwen-1.5B')"
+xmake install
 pip install ./python/
 python test/ops/add.py --device nvidia
 python test/test_infer.py --model [dir_path/to/model] --test --device nvidia
@@ -45,9 +42,9 @@ python test/ops/add.py --device moore
 python test/test_infer.py --model [dir_path/to/model] --test --device moore
 ```
 
-> 若 `import torch` 报 `module 'torch' has no attribute 'musa'`，先执行 `export TORCH_DEVICE_BACKEND_AUTOLOAD=1`（torch_musa 设备后端自动加载开关，官方算力镜像通常已默认开启）。
+> 若 `import torch` 报 `module 'torch' has no attribute 'musa'`，先执行 `export TORCH_DEVICE_BACKEND_AUTOLOAD=1`（torch_musa 设备后端自动加载开关，通常已默认开启）。
 
-> 其余算子（argmax / embedding / linear / rms_norm / rope / self_attention / swiglu）同理，`test/ops/<op>.py` 支持 `--device {cpu,nvidia,moore}`。
+> 其余算子（argmax / embedding / linear / rms_norm / rope / self_attention / swiglu）同理。
 
 ---
 
@@ -90,7 +87,7 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 
 - **Nvidia（cuBLAS）**：7 个算子实现 CUDA 版本，`linear` / `self_attention` 用 `cublasGemmEx`，
   `--device nvidia` 测试通过。
-- **MUSA（mublas）**：7 个算子实现 MUSA 版本（`cuda*`→`musa*`），`linear` / `self_attention` 用 `mublasGemmEx`，
+- **Moore（mublas）**：7 个算子实现 MUSA 版本（`cuda*`→`musa*`），`linear` / `self_attention` 用 `mublasGemmEx`，
   `--device moore` 测试通过。
 
 ### 3.3 算子性能对比（--profile）
