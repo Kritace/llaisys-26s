@@ -67,11 +67,11 @@ scripts/build_musa.sh                       # mcc 预编译 .mu → .a
 
 ```text
 include/llaisys.h                           # 新增 DeviceType.MUSA
-src/device/runtime_api.hpp/.cpp             # 分派新增 MUSA 分支
-src/ops/<op>/op.cpp                         # 分派新增 MUSA case
+src/device/runtime_api.hpp/.cpp             # 分派新增 Moore 分支
+src/ops/<op>/op.cpp                         # 分派新增 Moore case
 src/models/qwen2/ + src/llaisys/            # GPU 推理修复（D2H / D2D 拷贝）
 xmake.lua                                   # 新增 moore-gpu 编译选项
-python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
+python/llaisys/libllaisys/ + test/          # Python 与测试支持 Moore 设备
 ```
 
 ---
@@ -116,11 +116,11 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 |---|---|
 | CPU（本机） | AMD Ryzen 5 5600H（6C12T） |
 | Nvidia（服务器） | RTX 5090（32GB） | 
-| MUSA（服务器） | MTT S5000（80GB） |
+| Moore（服务器） | MTT S5000（80GB） |
 
 ### 4.2 推理测试结果
 
-三个平台执行，LLAIYS 生成结果与 PyTorch 参考逐 token 完全一致，均 `Test passed!`。
+三个平台执行，LLAISYS 生成结果与 PyTorch 参考逐 token 完全一致，均 `Test passed!`。
 
 ![本地 CPU 推理测试通过](images/cpu-infer-test-passed.png)
 
@@ -130,7 +130,7 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 
 *图 2：服务器 Nvidia 平台（RTX 5090），`Test passed!`，与 PyTorch 逐 token 一致。*
 
-![服务器 MUSA 推理测试通过](images/musa-infer-test-passed.png)
+![服务器 Moore 推理测试通过](images/musa-infer-test-passed.png)
 
 *图 3：服务器 MUSA 平台（MTT S5000），`Test passed!`，与 PyTorch 逐 token 一致。*
 
@@ -140,6 +140,6 @@ python/llaisys/libllaisys/ + test/          # Python 与测试支持 musa 设备
 |---|---|---|---|
 | CPU（本机） | 122.66s | 12.82s | 0.10×（PyTorch 多线程优化） |
 | Nvidia（服务器） | 1.17s | 1.72s | 1.47× |
-| MUSA（服务器） | 10.74s | 12.33s | 1.15× |
+| Moore（服务器） | 10.74s | 12.33s | 1.15× |
 
-> Nvidia / MUSA 上 LLAIYS 均快于 PyTorch；CPU 上 LLAIYS 为朴素单线程实现，明显慢于 PyTorch。
+> Nvidia / Moore 上 LLAISYS 均快于 PyTorch；CPU 上 LLAISYS 为朴素单线程实现，明显慢于 PyTorch。
